@@ -1,7 +1,7 @@
 FUNCTION LIST_INSERT
     (*http://www.oscat.de/images/OSCATBasic/oscat_basic333_en.pdf#page=486*)
     (* load pointers *)
-    pt := ADR(LIST);
+    pt ACCESS ADR(LIST);
 
     IF LEN(INS) + 1 + LEN(LIST) > LIST_LENGTH THEN
     	LIST_INSERT := FALSE;
@@ -10,7 +10,7 @@ FUNCTION LIST_INSERT
     	(* search for position *)
     	WHILE read < LIST_LENGTH DO
     		IF cnt >= POS THEN
-    			sx := CHR_TO_STRING(SEP);
+    			CHR_TO_STRING(SEP, sx);
     			INS := CONCAT(sx, INS);
     			LIST := INSERT(LIST, INS, read - 1);
     			LIST_INSERT := TRUE;

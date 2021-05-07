@@ -1,33 +1,34 @@
 FUNCTION DT_TO_STRF
     (*http://www.oscat.de/images/OSCATBasic/oscat_basic333_en.pdf#page=152*)
-    IF LANG < 1 THEN ly := cDEFAULT; ELSE ly := MIN(cLMAX, LANG); END_IF
+    IF LANG < 1 THEN ly := cLANGUAGE_DEFAULT; ELSE ly := MIN(cLANGUAGE_LMAX, LANG); END_IF
 
     (* decode date and time information *)
     dx := DT_TO_DATE(DTI);
     td := DT_TO_TOD(DTI);
 
     (* parse the format string *)
-    DT_TO_STRF := FMT;
-    pos := FIND(DT_TO_STRF, '#');
+    RETVAL := FMT;
+    pos := FIND(RETVAL, '#');
     WHILE pos > 0 DO
     	(* retrieve format identifier *)
-    	f := CODE(DT_TO_STRF, pos + 1);
+    	f := BYTE_TO_INT(CODE(RETVAL, pos + 1));
     	(* generate the return string according to the format character *)
     	fs := '';
     	CASE f OF
     		65 : (* letter A retunrs the year in 4 digits *)
     			fs := INT_TO_STRING(YEAR_OF_DATE(dx));
     		66 : (* letter B returns the year in exactly 2 digits *)
-    			fs := RIGHT(INT_TO_STRING(YEAR_OF_DATE(dx)),2);
+                fs := INT_TO_STRING(YEAR_OF_DATE(dx));
+    			fs := RIGHT(fs,2);
     		67 : (* letter C returns the month with 1 or 2 digits *)
     			fs := INT_TO_STRING(MONTH_OF_DATE(dx));
     		68 : (* letter D returns the month with exactly 2 digits *)
     			fs := INT_TO_STRING(MONTH_OF_DATE(dx));
     			IF LEN(fs) < 2 THEN fs := CONCAT('0', fs); END_IF
     		69 : (* letter E returns the month with 3 characters *)
-    			fs := MONTH_TO_STRING(MONTH_OF_DATE(dx), ly, 3);
+    			MONTH_TO_STRING(MONTH_OF_DATE(dx), ly, 3, fs);
     		70 : (* letter f returns the month with all characters *)
-    			fs := MONTH_TO_STRING(MONTH_OF_DATE(dx), ly, 0);
+    			MONTH_TO_STRING(MONTH_OF_DATE(dx), ly, 0, fs);
     		71 : (* letter G returns the day with up to 2 digits *)
     			fs := INT_TO_STRING(DAY_OF_MONTH(dx));
     		72 : (* letter H returns the day of the month with exactly 2 digits *)
@@ -36,9 +37,9 @@ FUNCTION DT_TO_STRF
     		73 : (* letter I returns the weekday as the number 1..7 1 = monday *)
     			fs := INT_TO_STRING(DAY_OF_WEEK(dx));
     		74 : (* letter J returns the weekday in 2 character writing *)
-    			fs := WEEKDAY_TO_STRING(DAY_OF_WEEK(dx), ly, 2);
+    			WEEKDAY_TO_STRING(DAY_OF_WEEK(dx), ly, 2, fs);
     		75 : (* letter K returns the weekday with all characters *)
-    			fs := WEEKDAY_TO_STRING(DAY_OF_WEEK(dx), ly, 0);
+    			WEEKDAY_TO_STRING(DAY_OF_WEEK(dx), ly, 0, fs);
     		76 : (* letter L returns AM or PM for the given DateTime *)
     			IF td >= TOD#12:00 THEN fs := 'PM'; ELSE fs := 'AM'; END_IF
     		77 : (* letter M returns the hour in 1 or 2 digit form 0..24h *)
@@ -78,10 +79,10 @@ FUNCTION DT_TO_STRF
     			fs := INT_TO_STRING(MONTH_OF_DATE(dx));
     			IF LEN(fs) < 2 THEN fs := CONCAT(BLANK, fs); END_IF
     		END_CASE
-    	DT_TO_STRF := REPLACE(DT_TO_STRF, fs, 2, pos);
-    	pos := FIND(DT_TO_STRF, '#');
+    	RETVAL := REPLACE(RETVAL, fs, 2, pos);
+    	pos := FIND(RETVAL, '#');
     END_WHILE
-
+    DT_TO_STRF := TRUE;
 
     (* revision history
     hm	7. oct. 2008	rev 1.0

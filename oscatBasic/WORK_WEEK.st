@@ -9,18 +9,18 @@ FUNCTION WORK_WEEK
     (* wenn der erste tag des jahres größer als donnerstag ist dann beginnt die letzte kw am montag davor *)
     (* wenn der erste tag des jahres ein donnerstag oder kleiner ist beginnt die erste kw 2 montage davor *)
     IF w1 < 5 THEN
-    	ds := DATE_TO_DWORD(d1) - INT_TO_DWORD(w1+6) * 86400;
+    	ds := DATE_TO_UDINT(d1) - INT_TO_UDINT(w1+6) * 86400;
     ELSE
-    	ds := DATE_TO_DWORD(d1) - INT_TO_DWORD(w1-1) * 86400;
+    	ds := DATE_TO_UDINT(d1) - INT_TO_UDINT(w1-1) * 86400;
     END_IF
 
     (* kalenderwoche des eingangsdatums *)
-    WORK_WEEK := DWORD_TO_INT((DATE_TO_DWORD(IDATE) - ds) / 604800);
+    WORK_WEEK := UDINT_TO_INT((DATE_TO_UDINT(IDATE) - ds) / 604800);
 
     (* korrektur wenn WORK_WEEK = 0 *)
     IF WORK_WEEK = 0 THEN
     	(* WORK_WEEK needs to be 53 when 1.jan of the year before is thursday or dec 31. is thursday. *)
-    	(* first and last weekday of a year is equal and one more day for a leap_year. *)
+    	(* first and last weekday of a year is equal and one more day for a LEAP_YEAR. *)
     	IF w1 > 1 THEN w31 := w1 - 1; ELSE w31 := 7; END_IF
     	IF LEAP_YEAR(yr - 1) AND w31 > 1 THEN w01 := w31 - 1; ELSE w1 := 7; END_IF
     	(* if first or last day of a year is a thursday, the year has 53 weeks *)
@@ -28,7 +28,7 @@ FUNCTION WORK_WEEK
     ELSE
     	(* end of year calculation *)
     	(* calculated the first and last weekday *)
-    	IF leap_year(yr) THEN
+    	IF LEAP_YEAR(yr) THEN
     		IF w1 < 7 THEN w31 := w1 + 1; ELSE w31 := 1; END_IF
     	ELSE
     		w31 := w1;
